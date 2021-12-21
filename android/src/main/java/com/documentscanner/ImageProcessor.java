@@ -75,6 +75,8 @@ public class ImageProcessor extends Handler {
     private int numOfRectangles = 10;
     private boolean noGrayscale = false;
 
+    private static int MIN_DETECTION_HEIGHT = 500;
+
     public ImageProcessor(Looper looper, Handler uiHandler, OpenNoteCameraView mainActivity, Context context) {
         super(looper);
         mUiHandler = uiHandler;
@@ -204,9 +206,9 @@ public class ImageProcessor extends Handler {
         sd.originalSize = inputRgba.size();
         Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
 
-        double ratio = sd.originalSize.height / 500;
-        sd.heightWithRatio = Double.valueOf(sd.originalSize.width / ratio).intValue();
-        sd.widthWithRatio = Double.valueOf(sd.originalSize.height / ratio).intValue();
+        Size detectionSize = getDetectionSize(sd.originalSize);
+        sd.heightWithRatio = Double.valueOf(detectionSize.height).intValue();
+        sd.widthWithRatio = Double.valueOf(detectionSize.width).intValue();
 
         Mat doc;
         if (quad != null) {
@@ -226,7 +228,7 @@ public class ImageProcessor extends Handler {
             sd.previewPoints = mPreviewPoints;
             sd.previewSize = mPreviewSize;
 
-            doc = fourPointTransform(inputRgba, quad.points);
+            doc = fourPointTransform(inputRgba, mPreviewPoints);
         } else {
             doc = new Mat(inputRgba.size(), CvType.CV_8UC4);
             inputRgba.copyTo(doc);
@@ -238,9 +240,7 @@ public class ImageProcessor extends Handler {
     private HashMap<String, Long> pageHistory = new HashMap<>();
 
     private boolean checkQR(String qrCode) {
-
         return !(pageHistory.containsKey(qrCode) && pageHistory.get(qrCode) > new Date().getTime() / 1000 - 15);
-
     }
 
     private boolean detectPreviewDocument(Mat inputRgba) {
@@ -258,7 +258,7 @@ public class ImageProcessor extends Handler {
 
             Point[] rescaledPoints = new Point[4];
 
-            double ratio = inputRgba.size().height / 500;
+            double ratio = getDetectionSizeRatio(inputRgba.size());
 
             for (int i = 0; i < 4; i++) {
                 int x = Double.valueOf(quad.points[i].x * ratio).intValue();
@@ -319,11 +319,7 @@ public class ImageProcessor extends Handler {
     }
 
     private Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
-
-        double ratio = srcSize.height / 500;
-        int height = Double.valueOf(srcSize.height / ratio).intValue();
-        int width = Double.valueOf(srcSize.width / ratio).intValue();
-        Size size = new Size(width, height);
+        Size size = getDetectionSize(srcSize);
 
         Log.i("COUCOU", "Size----->" + size);
         for (MatOfPoint c : contours) {
@@ -339,7 +335,6 @@ public class ImageProcessor extends Handler {
             Point[] foundPoints = sortPoints(points);
 
             if (insideArea(foundPoints, size)) {
-
                 return new Quadrilateral(c, foundPoints);
             }
             // }
@@ -455,11 +450,6 @@ public class ImageProcessor extends Handler {
     }
 
     private Mat fourPointTransform(Mat src, Point[] pts) {
-
-        double ratio = src.size().height / 500;
-        int height = Double.valueOf(src.size().height / ratio).intValue();
-        int width = Double.valueOf(src.size().width / ratio).intValue();
-
         Point tl = pts[0];
         Point tr = pts[1];
         Point br = pts[2];
@@ -468,26 +458,25 @@ public class ImageProcessor extends Handler {
         double widthA = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
         double widthB = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
 
-        double dw = Math.max(widthA, widthB) * ratio;
+        double dw = Math.max(widthA, widthB);
         int maxWidth = Double.valueOf(dw).intValue();
 
         double heightA = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
         double heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
 
-        double dh = Math.max(heightA, heightB) * ratio;
+        double dh = Math.max(heightA, heightB);
         int maxHeight = Double.valueOf(dh).intValue();
 
-        Mat doc = new Mat(maxHeight, maxWidth, CvType.CV_8UC4);
+        Mat doc = new Mat(maxHeight, maxWidth , CvType.CV_8UC4);
 
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
 
-        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio,
-                bl.x * ratio, bl.y * ratio);
+        src_mat.put(0, 0, tl.x, tl.y, tr.x , tr.y, br.x , br.y,
+        bl.x, bl.y);
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
-
         Imgproc.warpPerspective(src, doc, m, doc.size());
 
         return doc;
@@ -499,10 +488,7 @@ public class ImageProcessor extends Handler {
         Mat cannedImage = null;
         Mat resizedImage = null;
 
-        double ratio = src.size().height / 500;
-        int height = Double.valueOf(src.size().height / ratio).intValue();
-        int width = Double.valueOf(src.size().width / ratio).intValue();
-        Size size = new Size(width, height);
+        Size size = getDetectionSize(src);
 
         resizedImage = new Mat(size, CvType.CV_8UC4);
         grayImage = new Mat(size, CvType.CV_8UC4);
@@ -568,11 +554,30 @@ public class ImageProcessor extends Handler {
         }
 
         return results;
-
     }
 
     public void setBugRotate(boolean bugRotate) {
         mBugRotate = bugRotate;
     }
 
+    private double getDetectionSizeRatio(Size src) {
+        if (src.height > MIN_DETECTION_HEIGHT) {
+            return src.height / MIN_DETECTION_HEIGHT;
+        }
+        return 1.0;
+    }
+
+    private Size getDetectionSize(Size src) {
+        double ratio =  getDetectionSizeRatio(src);
+        double height = src.height / ratio;
+        double width = src.width / ratio;
+        return new Size(width, height);
+    }
+
+    private Size getDetectionSize(Mat src) {
+        double ratio =  getDetectionSizeRatio(src.size());
+        double height = src.size().height / ratio;
+        double width = src.size().width / ratio;
+        return new Size(width, height);
+    }
 }
