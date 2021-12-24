@@ -74,6 +74,7 @@ public class ImageProcessor extends Handler {
     private int numOfSquares = 0;
     private int numOfRectangles = 10;
     private boolean noGrayscale = false;
+    private Quadrilateral mQuad = null;
 
     private static int MIN_DETECTION_HEIGHT = 500;
 
@@ -204,7 +205,11 @@ public class ImageProcessor extends Handler {
         ScannedDocument sd = new ScannedDocument(inputRgba);
 
         sd.originalSize = inputRgba.size();
-        Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
+
+        Quadrilateral quad = mQuad;
+        if (quad == null) {
+            quad = getQuadrilateral(contours, sd.originalSize);
+        }
 
         Size detectionSize = getDetectionSize(sd.originalSize);
         sd.heightWithRatio = Double.valueOf(detectionSize.height).intValue();
@@ -215,10 +220,19 @@ public class ImageProcessor extends Handler {
 
             sd.originalPoints = new Point[4];
 
+            // FIXME: this is really weird but somehow works with extra processing
             sd.originalPoints[0] = new Point(sd.widthWithRatio - quad.points[3].y, quad.points[3].x); // Topleft
             sd.originalPoints[1] = new Point(sd.widthWithRatio - quad.points[0].y, quad.points[0].x); // TopRight
             sd.originalPoints[2] = new Point(sd.widthWithRatio - quad.points[1].y, quad.points[1].x); // BottomRight
             sd.originalPoints[3] = new Point(sd.widthWithRatio - quad.points[2].y, quad.points[2].x); // BottomLeft
+
+            /*
+            This looked reasonable but values are wrong
+            sd.originalPoints[0] = new Point(quad.points[0].y, quad.points[0].x); // TopLeft
+            sd.originalPoints[1] = new Point(quad.points[3].y, quad.points[3].x); // TopRight
+            sd.originalPoints[2] = new Point(quad.points[2].y, quad.points[2].x); // BottomRight
+            sd.originalPoints[3] = new Point(quad.points[1].y, quad.points[1].x); // BottomLeft
+            */
 
             sd.previewPoints = mPreviewPoints;
 
@@ -274,6 +288,8 @@ public class ImageProcessor extends Handler {
             mPreviewPoints = rescaledPoints;
 
             drawDocumentBox(mPreviewPoints, mPreviewSize);
+
+            mQuad = quad;
 
             return true;
 
