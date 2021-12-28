@@ -60,6 +60,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -661,12 +662,16 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
         }
 
         fileName = folderDir + "/" + folderName + "/" + UUID.randomUUID() + ".jpg";
-        Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(), Double.valueOf(doc.size().height).intValue(),
-            CvType.CV_8UC4);
-
+        Mat endDoc = new Mat(doc.size(), CvType.CV_8UC4);
         Core.flip(doc.t(), endDoc, 1);
 
-        Imgcodecs.imwrite(fileName, endDoc);
+        ArrayList<Integer> parameters = new ArrayList();
+        parameters.add(Imgcodecs.CV_IMWRITE_JPEG_QUALITY);
+        parameters.add((int)(100));
+        MatOfInt params = new MatOfInt();
+        params.fromList(parameters);
+
+        Imgcodecs.imwrite(fileName, endDoc, params);
 
         endDoc.release();
 
