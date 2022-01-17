@@ -627,10 +627,11 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
                                 blinkScreen();
                                 blinkScreenAndShutterSound();
                             }
-                            if (attemptToFocus) {
-                                return;
-                            } else {
-                                attemptToFocus = true;
+                            else {
+                                // force photo
+                                mCamera.takePicture(null, null, pCallback);
+                                blinkScreen();
+                                blinkScreenAndShutterSound();
                             }
                         }
                     });
