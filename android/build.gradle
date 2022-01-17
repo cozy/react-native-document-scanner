@@ -31,7 +31,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.facebook.react:react-native:+'
     implementation 'com.google.zxing:core:3.0.1'
-    implementation 'org.piwik.sdk:piwik-sdk:0.0.4'
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    implementation 'us.feras.mdv:markdownview:1.1.0'
 }
