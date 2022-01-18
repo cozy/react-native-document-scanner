@@ -17,7 +17,9 @@ class PdfScanner extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      permissionsAuthorized: Platform.OS === "ios"
+      permissionsAuthorized: Platform.OS === "ios",
+      onPictureTakenListener: null,
+      onProcessingChangeListener: null
     };
   }
 
@@ -77,16 +79,18 @@ class PdfScanner extends React.Component {
   componentWillMount() {
     if (Platform.OS === "android") {
       const { onPictureTaken, onProcessing } = this.props;
-      DeviceEventEmitter.addListener("onPictureTaken", onPictureTaken);
-      DeviceEventEmitter.addListener("onProcessingChange", onProcessing);
+      const onPictureTakenListener = DeviceEventEmitter.addListener("onPictureTaken", onPictureTaken)
+      const onProcessingChangeListener = DeviceEventEmitter.addListener("onProcessingChange", onProcessing)
+      this.setState({onPictureTakenListener: onPictureTakenListener})
+      this.setState({onProcessingChangeListener: onProcessingChangeListener})
     }
   }
 
   componentWillUnmount() {
     if (Platform.OS === "android") {
       const { onPictureTaken, onProcessing } = this.props;
-      DeviceEventEmitter.removeListener("onPictureTaken", onPictureTaken);
-      DeviceEventEmitter.removeListener("onProcessingChange", onProcessing);
+      this.state.onPictureTakenListener.remove()
+      this.state.onProcessingChangeListener.remove()
     }
   }
 
