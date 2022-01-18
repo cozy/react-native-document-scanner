@@ -34,13 +34,16 @@ class PdfScanner extends React.Component {
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.CAMERA
       ]);
 
       if (
         granted["android.permission.READ_EXTERNAL_STORAGE"] ===
           PermissionsAndroid.RESULTS.GRANTED &&
         granted["android.permission.WRITE_EXTERNAL_STORAGE"] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        granted["android.permission.CAMERA"] ===
           PermissionsAndroid.RESULTS.GRANTED
       )
         this.setState({ permissionsAuthorized: true });
