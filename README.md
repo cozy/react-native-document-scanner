@@ -1,28 +1,18 @@
-![Demo gif](https://raw.githubusercontent.com/Michaelvilleneuve/react-native-document-scanner/master/images/demo.gif)
-
 # React Native Document Scanner
 
-Live document detection library. Returns either a URI or a base64 encoded string of the captured image, allowing you to easily store it or use it as you wish !
 
-Features :
 
-- Live detection
-- Perspective correction and crop of the image
-- Live camera filters (brightness, saturation, contrast)
-- Flash
-- Easy to use base64 image
+This library does an automatic document detection through the phone camera.   
 
-#### Can be easily plugged with [react-native-perspective-image-cropper](https://github.com/Michaelvilleneuve/react-native-perspective-image-cropper)
+![Demo gif](https://raw.githubusercontent.com/Michaelvilleneuve/react-native-document-scanner/master/images/demo.gif)
 
-![Demo crop gif](https://camo.githubusercontent.com/0ac887deaa7263172a5fd2759dba3d692e98585a/68747470733a2f2f73332d65752d776573742d312e616d617a6f6e6177732e636f6d2f6d69636861656c76696c6c656e657576652f64656d6f2d63726f702e676966)
+This is a fork from this [repository](https://github.com/Michaelvilleneuve/react-native-document-scanner).
 
-## Both Platform
+## Installation
 
-Use version >=1.4.1 if you are using react-native 0.48+
+### Both Platform
 
-`$ yarn add https://github.com/Michaelvilleneuve/react-native-document-scanner`
-
-`$ react-native link react-native-document-scanner`
+`$ yarn add https://github.com/cozy/react-native-document-scanner`
 
 Edit the `info.plist` file in XCode and add the following permission : `NSCameraUsageDescription`
 
@@ -51,11 +41,14 @@ Add `tools:replace="android:allowBackup"` in <application tag. It should look li
 <application tools:replace="android:allowBackup" android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="false" android:theme="@style/AppTheme">
 ```
 
-Add Camera permissions request:
+Add permissions request:
 
 ```
 <uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
+
 
 ## Usage
 
@@ -168,3 +161,59 @@ If you want to use saveInAppDocument options, then don't forget to add those raw
 <key>LSSupportsOpeningDocumentsInPlace</key>
 <true/>
 ```
+
+
+## Community
+
+### What's Cozy?
+
+<div align="center">
+  <a href="https://cozy.io">
+    <img src="https://cdn.rawgit.com/cozy/cozy-site/master/src/images/cozy-logo-name-horizontal-blue.svg" alt="cozy" height="48" />
+  </a>
+ </div>
+ </br>
+
+[Cozy] is a platform that brings all your web services in the same private space.  With it, your webapps and your devices can share data easily, providing you with a new experience. You can install Cozy on your own hardware where no one's tracking you.
+
+
+### Get in touch
+
+You can reach the Cozy Community by:
+
+- Chatting with us on IRC [#cozycloud on Freenode][freenode]
+- Posting on our [Forum][forum]
+- Posting issues on the [Github repos][github]
+- Say Hi! on [Twitter][twitter]
+
+
+## License
+
+This library is developed by cozy and distributed under the [AGPL v3 license][agpl-3.0].
+
+
+
+[cozy]: https://cozy.io "Cozy Cloud"
+[setup]: https://dev.cozy.io/#set-up-the-development-environment "Cozy dev docs: Set up the Development Environment"
+[yarn]: https://yarnpkg.com/
+[yarn-install]: https://yarnpkg.com/en/docs/install
+[cozy-ui]: https://github.com/cozy/cozy-ui
+[cozy-client-js]: https://github.com/cozy/cozy-client-js/
+[cozy-stack-docker]: https://github.com/cozy/cozy-stack/blob/master/docs/client-app-dev.md#with-docker
+[doctypes]: https://cozy.github.io/cozy-doctypes/
+[bill-doctype]: https://github.com/cozy/cozy-konnector-libs/blob/master/models/bill.js
+[konnector-doctype]: https://github.com/cozy/cozy-konnector-libs/blob/master/models/base_model.js
+[konnectors]: https://github.com/cozy/cozy-konnector-libs
+[agpl-3.0]: https://www.gnu.org/licenses/agpl-3.0.html
+[contribute]: CONTRIBUTING.md
+[tx]: https://www.transifex.com/cozy/
+[tx-signin]: https://www.transifex.com/signin/
+[tx-app]: https://www.transifex.com/cozy/<SLUG_TX>/dashboard/
+[tx-client]: http://docs.transifex.com/client/
+[freenode]: http://webchat.freenode.net/?randomnick=1&channels=%23cozycloud&uio=d4
+[forum]: https://forum.cozy.io/
+[github]: https://github.com/cozy/
+[twitter]: https://twitter.com/cozycloud
+[nvm]: https://github.com/creationix/nvm
+[ndenv]: https://github.com/riywo/ndenv
+[jest]: https://facebook.github.io/jest/
