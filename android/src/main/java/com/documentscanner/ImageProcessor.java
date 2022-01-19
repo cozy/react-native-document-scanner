@@ -220,19 +220,11 @@ public class ImageProcessor extends Handler {
 
             sd.originalPoints = new Point[4];
 
-            // FIXME: this is really weird but somehow works with extra processing
+            // XXX - This looks surprising but somehow works with extra processing on the app side.
             sd.originalPoints[0] = new Point(sd.widthWithRatio - quad.points[3].y, quad.points[3].x); // Topleft
             sd.originalPoints[1] = new Point(sd.widthWithRatio - quad.points[0].y, quad.points[0].x); // TopRight
             sd.originalPoints[2] = new Point(sd.widthWithRatio - quad.points[1].y, quad.points[1].x); // BottomRight
             sd.originalPoints[3] = new Point(sd.widthWithRatio - quad.points[2].y, quad.points[2].x); // BottomLeft
-
-            /*
-            This looked reasonable but values are wrong
-            sd.originalPoints[0] = new Point(quad.points[0].y, quad.points[0].x); // TopLeft
-            sd.originalPoints[1] = new Point(quad.points[3].y, quad.points[3].x); // TopRight
-            sd.originalPoints[2] = new Point(quad.points[2].y, quad.points[2].x); // BottomRight
-            sd.originalPoints[3] = new Point(quad.points[1].y, quad.points[1].x); // BottomLeft
-            */
 
             sd.previewPoints = mPreviewPoints;
 
